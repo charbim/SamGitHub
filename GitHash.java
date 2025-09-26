@@ -3,21 +3,20 @@ import java.io.IOException;
 
 public class GitHash{
 
-    public static void gitRepoInit() {
-        try {
-            GitHash.createDirectoryIfMissing("git");
-            GitHash.createDirectoryIfMissing("git/objects");
-            GitHash.createFileIfMissing("git/HEAD");
-            GitHash.createFileIfMissing("git/INDEX");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    public static void gitRepoInit() throws IOException {
+        GitHash.createDirectoryIfMissing("git");
+        GitHash.createDirectoryIfMissing("git/objects");
+        GitHash.createFileIfMissing("git/HEAD");
+        GitHash.createFileIfMissing("git/INDEX");
+        System.out.println("Git Repository Created");
     }
     
     public static void createDirectoryIfMissing (String path) throws IOException {
         File directoryCreator = new File(path);
         if (!directoryCreator.exists()) {
             directoryCreator.mkdir();
+        } else {
+            System.out.println(path + " Already Exists");
         }
     }
 
@@ -25,6 +24,8 @@ public class GitHash{
         File fileCreator = new File(path);
         if (!fileCreator.exists()) {
             fileCreator.createNewFile();
+        } else {
+            System.out.println(path + " Already Exists");
         }
     }
 
@@ -37,5 +38,9 @@ public class GitHash{
         objectsDeleter.delete();
         File gitDeleter = new File("git");
         gitDeleter.delete();
+        System.out.println("Git Repository Deleted");
     }
+
+    
+
 }

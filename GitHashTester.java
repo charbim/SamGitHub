@@ -4,7 +4,8 @@ import java.io.IOException;
 public class GitHashTester {
 
     public static void main(String[] args) throws IOException {
-        gitRepoInitTester();
+        // gitRepoInitTester();
+        System.out.println(GitHash.generateSHA1Hash(new File("testFile.txt")));
     }
 
     public static void gitRepoInitTester() throws IOException {

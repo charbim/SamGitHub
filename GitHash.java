@@ -8,7 +8,7 @@ import java.nio.file.Files;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
-public class GitHash{
+public class GitHash {
 
     public static void gitRepoInit() throws IOException {
         GitHash.createDirectoryIfMissing("git");
@@ -17,8 +17,8 @@ public class GitHash{
         GitHash.createFileIfMissing("git/INDEX");
         System.out.println("Git Repository Created");
     }
-    
-    public static void createDirectoryIfMissing (String path) throws IOException {
+
+    public static void createDirectoryIfMissing(String path) throws IOException {
         File directoryCreator = new File(path);
         if (!directoryCreator.exists()) {
             directoryCreator.mkdir();
@@ -27,7 +27,7 @@ public class GitHash{
         }
     }
 
-    public static void createFileIfMissing (String path) throws IOException {
+    public static void createFileIfMissing(String path) throws IOException {
         File fileCreator = new File(path);
         if (!fileCreator.exists()) {
             fileCreator.createNewFile();
@@ -74,11 +74,19 @@ public class GitHash{
         blobWriter.close();
     }
 
-    public static void deleteBLOB() {
-        
+    public static void deleteBLOB(File file) throws IOException {
+        String hash = generateSHA1Hash(file);
+        File blobDeleter = new File("objects/" + hash);
+        blobDeleter.delete();
     }
 
-    public static void blobExists() {
-        
+    public static void blobExists(File file) throws IOException{
+        String hash = generateSHA1Hash(file);
+        File blobChecker = new File("objects/" + hash);
+        if (blobChecker.exists()) {
+            System.out.println("BLOB " + hash + " of File " + file.getName() + " is in objects directoty");
+        } else {
+            System.out.println("BLOB " + hash + " of File " + file.getName() + " does not exist or is not in objects directoty");
+        }
     }
 }

@@ -33,3 +33,5 @@ First, all pre-existing files before the test are deleted. Then each test is car
 
 How do I read and understand the Terminal after running the Tester? Because the method createDirectoryIfMissing() outputs the message "___ Already Exists" when a File already exists 
 _____________________________________________________________________________________________________________________________________
+
+note it may be useful to change some "checker" methods to booleans instead of voids that output their results for a later steps which can easily be done.

@@ -1,4 +1,8 @@
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.security.MessageDigest;
@@ -57,5 +61,24 @@ public class GitHash{
         } catch (NoSuchAlgorithmException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public static void createBLOB(File file) throws IOException {
+        String hash = generateSHA1Hash(file);
+        FileOutputStream blobWriter = new FileOutputStream("objects/" + hash);
+        BufferedReader fileCopier = new BufferedReader(new FileReader(file));
+        while (fileCopier.ready()) {
+            blobWriter.write(fileCopier.read());
+        }
+        fileCopier.close();
+        blobWriter.close();
+    }
+
+    public static void deleteBLOB() {
+        
+    }
+
+    public static void blobExists() {
+        
     }
 }

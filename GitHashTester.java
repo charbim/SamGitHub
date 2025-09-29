@@ -5,7 +5,8 @@ public class GitHashTester {
 
     public static void main(String[] args) throws IOException {
         // gitRepoInitTester();
-        System.out.println(GitHash.generateSHA1Hash(new File("testFile.txt")));
+        // System.out.println(GitHash.generateSHA1Hash(new File("testFile.txt")));
+
     }
 
     public static void gitRepoInitTester() throws IOException {
@@ -48,6 +49,8 @@ public class GitHashTester {
         File indexFile = new File("git/INDEX");
         if (gitFile.exists() && objectsFile.exists() && headFile.exists() && indexFile.exists()) {
             System.out.println("All Files Are Initialized");
+        } else {
+            System.out.println("Some Files Missing");
         }
     }
 
@@ -58,6 +61,8 @@ public class GitHashTester {
         File indexFile = new File("git/INDEX");
         if (!(gitFile.exists() || objectsFile.exists() || headFile.exists() || indexFile.exists())) {
             System.out.println("All Files Are Deleted");
+        } else {
+            System.out.println("Some Files Still Exist");
         }
     }
 }

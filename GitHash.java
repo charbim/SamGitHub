@@ -93,7 +93,7 @@ public class GitHash {
     }
 
     public static void addBLOBEntryToIndex(File file) throws IOException{
-        BufferedWriter entryWriter = new BufferedWriter(new FileWriter("INDEX"));
+        BufferedWriter entryWriter = new BufferedWriter(new FileWriter("INDEX", true));
         entryWriter.write(generateSHA1Hash(file) + " " + file.getName());
         entryWriter.close();
     }

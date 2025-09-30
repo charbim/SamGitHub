@@ -1,8 +1,10 @@
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.security.MessageDigest;
@@ -89,4 +91,11 @@ public class GitHash {
             System.out.println("BLOB " + hash + " of File " + file.getName() + " does not exist or is not in objects directoty");
         }
     }
+
+    public static void addBLOBEntryToIndex(File file) throws IOException{
+        BufferedWriter entryWriter = new BufferedWriter(new FileWriter("INDEX"));
+        entryWriter.write(generateSHA1Hash(file) + " " + file.getName());
+        entryWriter.close();
+    }
+
 }

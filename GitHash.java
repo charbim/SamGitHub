@@ -92,10 +92,16 @@ public class GitHash {
         }
     }
 
-    public static void addBLOBEntryToIndex(File file) throws IOException{
+    public static void addBLOBEntryToIndex(File file) throws IOException {
         BufferedWriter entryWriter = new BufferedWriter(new FileWriter("INDEX", true));
         entryWriter.write(generateSHA1Hash(file) + " " + file.getName());
         entryWriter.close();
+    }
+    
+    public static void cleanObjectsAndINDEX() throws IOException {
+        FileWriter overwriter = new FileWriter("INDEX");
+        overwriter.write("");
+        overwriter.close();
     }
 
 }

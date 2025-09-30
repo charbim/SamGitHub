@@ -92,10 +92,33 @@ public class GitHash {
         }
     }
 
-    public static void addBLOBEntryToIndex(File file) throws IOException{
+    public static void addBLOBEntryToIndex(File file) throws IOException {
         BufferedWriter entryWriter = new BufferedWriter(new FileWriter("INDEX", true));
         entryWriter.write(generateSHA1Hash(file) + " " + file.getName());
         entryWriter.close();
+    }
+    
+    public static void cleanObjectsAndINDEX() throws IOException {
+        FileWriter overwriter = new FileWriter("INDEX");
+        overwriter.write("");
+        overwriter.close();
+        removeRecursively("objects");
+    }
+
+    public static void removeRecursively(String pathName) throws IOException {
+        File file = new File(pathName);
+        if (!file.exists()) {
+            return;
+        }
+        if (file.list().length == 0) {
+            file.delete();
+        } else {
+            for (String childPathName : file.list()) {
+                removeRecursively(childPathName);
+            }
+        }
+        file.delete();
+        return;
     }
 
 }

@@ -6,12 +6,15 @@ public class GitHashTester {
     static File testFile = new File("testFile.txt");
 
     public static void main(String[] args) throws IOException {
-        // gitRepoInitTester();
+        gitRepoInitTester();
+        System.out.println();
         GitHash.gitRepoInit();
         System.out.println();
+        System.out.println(
+                "From SHA1 website should output:\n688eb17c23409c9f2d853b63475d5614d90293cf\nActually outputs:\n"
+                        + GitHash.generateSHA1Hash(new File("testFile.txt")));
+        System.out.println();
         doBLOBMethodsWork();
-
-        // System.out.println(GitHash.generateSHA1Hash(new File("testFile.txt")));
 
     }
 

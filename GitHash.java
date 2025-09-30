@@ -84,13 +84,14 @@ public class GitHash {
         blobDeleter.delete();
     }
 
-    public static void blobExists(File file) throws IOException{
+    public static void blobExists(File file) throws IOException {
         String hash = generateSHA1Hash(file);
         File blobChecker = new File("git/objects/" + hash);
         if (blobChecker.exists()) {
             System.out.println("BLOB " + hash + " of File " + file.getName() + " is in objects directory");
         } else {
-            System.out.println("BLOB " + hash + " of File " + file.getName() + " does not exist or is not in objects directory");
+            System.out.println(
+                    "BLOB " + hash + " of File " + file.getName() + " does not exist or is not in objects directory");
         }
     }
 }

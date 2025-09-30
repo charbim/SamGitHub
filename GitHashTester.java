@@ -3,8 +3,14 @@ import java.io.IOException;
 
 public class GitHashTester {
 
+    static File testFile = new File("testFile.txt");
+
     public static void main(String[] args) throws IOException {
         // gitRepoInitTester();
+        GitHash.gitRepoInit();
+        System.out.println();
+        doBLOBMethodsWork();
+
         // System.out.println(GitHash.generateSHA1Hash(new File("testFile.txt")));
 
     }
@@ -67,6 +73,10 @@ public class GitHashTester {
     }
 
     public static void doBLOBMethodsWork() throws IOException {
-        
+        GitHash.blobExists(testFile);
+        GitHash.createBLOB(testFile);
+        GitHash.blobExists(testFile);
+        GitHash.deleteBLOB(testFile);
+        GitHash.blobExists(testFile);
     }
 }

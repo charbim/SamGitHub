@@ -1,8 +1,10 @@
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.security.MessageDigest;
@@ -65,7 +67,9 @@ public class GitHash {
 
     public static void createBLOB(File file) throws IOException {
         String hash = generateSHA1Hash(file);
-        FileOutputStream blobWriter = new FileOutputStream("objects/" + hash);
+        File blob = new File("git/objects/" + hash);
+        blob.createNewFile();
+        FileOutputStream blobWriter = new FileOutputStream(blob);
         BufferedReader fileCopier = new BufferedReader(new FileReader(file));
         while (fileCopier.ready()) {
             blobWriter.write(fileCopier.read());
@@ -76,17 +80,17 @@ public class GitHash {
 
     public static void deleteBLOB(File file) throws IOException {
         String hash = generateSHA1Hash(file);
-        File blobDeleter = new File("objects/" + hash);
+        File blobDeleter = new File("git/objects/" + hash);
         blobDeleter.delete();
     }
 
     public static void blobExists(File file) throws IOException{
         String hash = generateSHA1Hash(file);
-        File blobChecker = new File("objects/" + hash);
+        File blobChecker = new File("git/objects/" + hash);
         if (blobChecker.exists()) {
-            System.out.println("BLOB " + hash + " of File " + file.getName() + " is in objects directoty");
+            System.out.println("BLOB " + hash + " of File " + file.getName() + " is in objects directory");
         } else {
-            System.out.println("BLOB " + hash + " of File " + file.getName() + " does not exist or is not in objects directoty");
+            System.out.println("BLOB " + hash + " of File " + file.getName() + " does not exist or is not in objects directory");
         }
     }
 }

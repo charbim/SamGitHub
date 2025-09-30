@@ -65,4 +65,8 @@ public class GitHashTester {
             System.out.println("Some Files Still Exist");
         }
     }
+
+    public static void doBLOBMethodsWork() throws IOException {
+        
+    }
 }

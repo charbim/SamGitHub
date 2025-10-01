@@ -41,3 +41,5 @@ NOTES TO SELF:
 it may be useful to change some "checker" methods to booleans instead of voids that output their results for a later steps which can easily be done.
 
 output test being run before running it in Terminal
+
+the way indexTester functions it will change the contents of each file every run so if there is a problem specific to a file be sure to denote it

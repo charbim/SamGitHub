@@ -13,7 +13,8 @@ public class GitHashTester {
         System.out.println();
         doBLOBMethodsWork();
         System.out.println();
-        indexMethodsTester(1, 10);
+        indexMethodsTester(5, 20);
+        GitHash.cleanObjectsAndINDEX();
     }
 
     public static void gitRepoInitTester() throws IOException {
@@ -111,11 +112,10 @@ public class GitHashTester {
             GitHash.createBLOBAndAddToObjects(newTestFile);
             GitHash.addBLOBEntryToIndex(newTestFile);
             doIndexEntriesMatchActualFiles(newTestFile);
-            GitHash.cleanObjectsAndINDEX();
         }
     }
 
     public static void doIndexEntriesMatchActualFiles(File newTestFile) throws IOException {
-        
+
     }
 }

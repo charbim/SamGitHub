@@ -96,28 +96,29 @@ public class GitHash {
     }
 
     public static void addBLOBEntryToIndex(File file) throws IOException {
-        BufferedWriter entryWriter = new BufferedWriter(new FileWriter("INDEX", true));
-        entryWriter.write(generateSHA1Hash(file) + " " + file.getName());
+        BufferedWriter entryWriter = new BufferedWriter(new FileWriter("git/INDEX", true));
+        entryWriter.write(generateSHA1Hash(file) + " " + file.getName() + "\n");
         entryWriter.close();
     }
     
     public static void cleanObjectsAndINDEX() throws IOException {
-        FileWriter overwriter = new FileWriter("INDEX");
+        FileWriter overwriter = new FileWriter("git/INDEX");
         overwriter.write("");
         overwriter.close();
-        removeRecursively("git/objects");
+        removeRecursively("objects", "git");
+        createDirectoryIfMissing("git/objects");
     }
 
-    public static void removeRecursively(String pathName) throws IOException {
-        File file = new File(pathName);
+    public static void removeRecursively(String pathName, String parentPathName) throws IOException {
+        File file = new File(parentPathName + "/" + pathName);
         if (!file.exists()) {
             return;
         }
-        if (file.list().length == 0) {
+        if (!file.isDirectory()) {
             file.delete();
         } else {
             for (String childPathName : file.list()) {
-                removeRecursively(childPathName);
+                removeRecursively(childPathName, parentPathName + "/" + pathName);
             }
         }
         file.delete();

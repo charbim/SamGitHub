@@ -65,7 +65,7 @@ public class GitHash {
         }
     }
 
-    public static void createBLOB(File file) throws IOException {
+    public static void createBLOBAndAddToObjects(File file) throws IOException {
         String hash = generateSHA1Hash(file);
         File blob = new File("git/objects/" + hash);
         blob.createNewFile();
@@ -78,7 +78,7 @@ public class GitHash {
         blobWriter.close();
     }
 
-    public static void deleteBLOB(File file) throws IOException {
+    public static void deleteBLOBFromObjects(File file) throws IOException {
         String hash = generateSHA1Hash(file);
         File blobDeleter = new File("git/objects/" + hash);
         blobDeleter.delete();
@@ -105,7 +105,7 @@ public class GitHash {
         FileWriter overwriter = new FileWriter("INDEX");
         overwriter.write("");
         overwriter.close();
-        removeRecursively("objects");
+        removeRecursively("git/objects");
     }
 
     public static void removeRecursively(String pathName) throws IOException {

@@ -1,21 +1,19 @@
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 
 public class GitHashTester {
-
-    static File testFile = new File("testFile.txt");
 
     public static void main(String[] args) throws IOException {
         gitRepoInitTester();
         System.out.println();
         GitHash.gitRepoInit();
         System.out.println();
-        System.out.println(
-                "From SHA1 website should output:\n688eb17c23409c9f2d853b63475d5614d90293cf\nActually outputs:\n"
-                        + GitHash.generateSHA1Hash(new File("testFile.txt")));
+        testGenerateSHA1Hash();
         System.out.println();
         doBLOBMethodsWork();
-
+        System.out.println();
+        indexMethodsTester(1, 10);
     }
 
     public static void gitRepoInitTester() throws IOException {
@@ -75,11 +73,49 @@ public class GitHashTester {
         }
     }
 
+    public static void testGenerateSHA1Hash() throws IOException {
+        File testFileHash = new File("testFileHash.txt");
+        testFileHash.createNewFile();
+        FileWriter testFileHashWriter = new FileWriter(testFileHash);
+        testFileHashWriter.write("I believe in you. Keep coding!");
+        testFileHashWriter.close();
+        System.out.println(
+                "From SHA1 website should output:\n657ea366b820a51f36ff13e8236f574e7cfb5e81\nMethod outputs:\n"
+                        + GitHash.generateSHA1Hash(testFileHash));
+    }
+
     public static void doBLOBMethodsWork() throws IOException {
-        GitHash.blobExists(testFile);
-        GitHash.createBLOB(testFile);
-        GitHash.blobExists(testFile);
-        GitHash.deleteBLOB(testFile);
-        GitHash.blobExists(testFile);
+        File testFileBLOB = new File("testFileHash.txt");
+        testFileBLOB.createNewFile();
+        FileWriter testFileBLOBWriter = new FileWriter(testFileBLOB);
+        testFileBLOBWriter.write("Gott hilft denen, die sich selbst helfen.");
+        testFileBLOBWriter.close();
+        GitHash.blobExists(testFileBLOB);
+        GitHash.createBLOBAndAddToObjects(testFileBLOB);
+        GitHash.blobExists(testFileBLOB);
+        GitHash.deleteBLOBFromObjects(testFileBLOB);
+        GitHash.blobExists(testFileBLOB);
+    }
+
+    public static void indexMethodsTester(int numFiles, int fileLength) throws IOException {
+        for (int i = 0; i < numFiles; i++) {
+            File newTestFile = new File("testFile" + i + ".txt");
+            newTestFile.createNewFile();
+            FileWriter testFileWriter = new FileWriter(newTestFile);
+            String fileContents = "";
+            for (int j = 0; j < fileLength; j++) {
+                fileContents += (char) (Math.random() * 94 + 33);
+            }
+            testFileWriter.write(fileContents);
+            testFileWriter.close();
+            GitHash.createBLOBAndAddToObjects(newTestFile);
+            GitHash.addBLOBEntryToIndex(newTestFile);
+            doIndexEntriesMatchActualFiles(newTestFile);
+            GitHash.cleanObjectsAndINDEX();
+        }
+    }
+
+    public static void doIndexEntriesMatchActualFiles(File newTestFile) throws IOException {
+        
     }
 }

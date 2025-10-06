@@ -6,12 +6,21 @@ import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.Writer;
 import java.nio.file.Files;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 public class GitHash {
 
+    public static void main(String[] args) throws IOException {
+        gitRepoInit();
+    }
+
+
+
+
+    // Create directories
     public static void gitRepoInit() throws IOException {
         GitHash.createDirectoryIfMissing("git");
         GitHash.createDirectoryIfMissing("git/objects");
@@ -38,17 +47,25 @@ public class GitHash {
         }
     }
 
-    public static void deleteGitDirectory() throws IOException {
-        File indexDeleter = new File("git/INDEX");
-        indexDeleter.delete();
-        File headDeleter = new File("git/HEAD");
-        headDeleter.delete();
-        File objectsDeleter = new File("git/objects");
-        objectsDeleter.delete();
-        File gitDeleter = new File("git");
-        gitDeleter.delete();
-        System.out.println("Git Repository Deleted");
+
+
+
+    // SHA 1 && BLOB && INDEX
+
+    public static String generateSHA1FromString(String contents) throws IOException {
+        File temp = new File("temp");
+        if (temp.exists()) {
+            temp.delete();
+        }
+
+        temp.createNewFile();
+        BufferedWriter bw = new BufferedWriter(new FileWriter(temp, true));
+        bw.write(contents);
+        bw.close();
+
+        return generateSHA1Hash(temp);
     }
+
 
     public static String generateSHA1Hash(File file) throws IOException {
         byte[] bytes = Files.readAllBytes(file.toPath());
@@ -78,11 +95,7 @@ public class GitHash {
         blobWriter.close();
     }
 
-    public static void deleteBLOBFromObjects(File file) throws IOException {
-        String hash = generateSHA1Hash(file);
-        File blobDeleter = new File("git/objects/" + hash);
-        blobDeleter.delete();
-    }
+
 
     public static void blobExists(File file) throws IOException {
         String hash = generateSHA1Hash(file);
@@ -97,10 +110,35 @@ public class GitHash {
 
     public static void addBLOBEntryToIndex(File file) throws IOException {
         BufferedWriter entryWriter = new BufferedWriter(new FileWriter("git/INDEX", true));
-        entryWriter.write(generateSHA1Hash(file) + " " + file.getName() + "\n");
+        entryWriter.write(generateSHA1Hash(file) + " ./" + file.getName() + "\n");
         entryWriter.close();
     }
     
+
+
+
+
+
+    // REMOVERS
+
+    public static void deleteGitDirectory() throws IOException {
+        File indexDeleter = new File("git/INDEX");
+        indexDeleter.delete();
+        File headDeleter = new File("git/HEAD");
+        headDeleter.delete();
+        File objectsDeleter = new File("git/objects");
+        objectsDeleter.delete();
+        File gitDeleter = new File("git");
+        gitDeleter.delete();
+        System.out.println("Git Repository Deleted");
+    }
+
+    public static void deleteBLOBFromObjects(File file) throws IOException {
+        String hash = generateSHA1Hash(file);
+        File blobDeleter = new File("git/objects/" + hash);
+        blobDeleter.delete();
+    }
+
     public static void cleanObjectsAndINDEX() throws IOException {
         FileWriter overwriter = new FileWriter("git/INDEX");
         overwriter.write("");
@@ -123,6 +161,69 @@ public class GitHash {
         }
         file.delete();
         return;
+    }
+
+
+
+// TREES
+
+
+    public static String writeDirContents(File dir) throws IOException {
+        if (dir.exists() && dir.isDirectory() ) {
+
+            File[] contents = dir.listFiles();
+            String[][] workingList = new String[contents.length][3];
+
+
+            // stores info in a 2d array
+            for (int i = 0; i < contents.length; i++) {
+                File f = contents[i];
+                if (f.isDirectory() && f.listFiles().length != 0) {
+                    workingList[i][0] = "tree";
+                    workingList[i][1] = writeDirContents(f);
+                    workingList[i][2] = f.getName();
+                } 
+
+                if (!f.isDirectory()) {
+                    workingList[i][0] = "blob";
+                    workingList[i][1] = generateSHA1Hash(f);
+                    workingList[i][2] = f.getName();
+                }
+
+            }
+
+            String hash = writeTreeFile(convertContentsToString(workingList));
+            return hash;
+
+        } else {
+            throw new IOException("Given file is not a directory/cannot be pushed");
+        }
+    }
+
+    public static String convertContentsToString(String[][] tree) {
+        StringBuilder sb = new StringBuilder();
+        for (String[] files : tree) {
+            if (files[0] != null) {
+                sb.append(files[0] + " ");
+                sb.append(files[1] + " ");
+                sb.append(files[2] + "\n");
+            }
+        }
+        sb.trimToSize();
+        return sb.toString();
+    }
+
+    public static String writeTreeFile(String contents) throws IOException {
+        String hash = generateSHA1FromString(contents);
+        File folder = new File("./git/objects/" + hash);
+        if (!folder.exists()) {
+            BufferedWriter bw = new BufferedWriter(new FileWriter(folder, true));
+            bw.write(contents);
+            bw.close();
+        }
+
+        return hash;
+
     }
 
 }

@@ -1,24 +1,20 @@
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.Writer;
 import java.nio.file.Files;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
+
+import java.util.Comparator;
+import java.util.PriorityQueue;
+
 
 public class GitHash {
-
-    public static void main(String[] args) throws IOException {
-        gitRepoInit();
-    }
-
-
-
 
     // Create directories
     public static void gitRepoInit() throws IOException {
@@ -51,6 +47,12 @@ public class GitHash {
 
 
     // SHA 1 && BLOB && INDEX
+
+    public static void add(String filePath) throws IOException {
+        File f = new File(filePath);
+        createBLOBAndAddToObjects(f);
+        addBLOBEntryToIndex(filePath);
+    }
 
     public static String generateSHA1FromString(String contents) throws IOException {
         File temp = new File("temp");
@@ -108,9 +110,9 @@ public class GitHash {
         }
     }
 
-    public static void addBLOBEntryToIndex(File file) throws IOException {
+    public static void addBLOBEntryToIndex(String filePath) throws IOException {
         BufferedWriter entryWriter = new BufferedWriter(new FileWriter("git/INDEX", true));
-        entryWriter.write(generateSHA1Hash(file) + " ./" + file.getName() + "\n");
+        entryWriter.write(generateSHA1Hash(new File(filePath)) + " ./" + filePath + "\n");
         entryWriter.close();
     }
     
@@ -167,8 +169,57 @@ public class GitHash {
 
 // TREES
 
+    // saves all folders in index as tree objects
+    public static void stageFolders() throws IOException {
+        PriorityQueue<WorkingDirectoryInfo> wd = convertIndexToWorkingDirectory();
+        convertNestedDirs(wd);
+    }
 
-    public static String writeDirContents(File dir) throws IOException {
+    // converts index to a PriorityQueue sorting from most to least imbedded in dirs. Info stored in Working Directory Function
+    public static PriorityQueue<WorkingDirectoryInfo> convertIndexToWorkingDirectory() throws IOException {
+        PriorityQueue<WorkingDirectoryInfo> wd = new PriorityQueue<>(Comparator.reverseOrder());
+        BufferedReader br = new BufferedReader(new FileReader("./git/INDEX"));
+        while (br.ready()) {
+            String info = br.readLine();
+            wd.add(new WorkingDirectoryInfo("blob", info.substring(0, info.indexOf(" ")), info.substring(info.indexOf(" ") + 1)));
+        }
+        br.close();
+
+        return wd;
+    }   
+
+    // Goes through dirs in priority order (as mentioned above) and converts the contents into object
+    public static void convertNestedDirs(PriorityQueue<WorkingDirectoryInfo> wd) throws IOException {
+        if (wd.peek() != null) {
+            ArrayList<WorkingDirectoryInfo> nestedFolders = new ArrayList<>();
+            nestedFolders.add(wd.poll());
+
+            WorkingDirectoryInfo currFolder = nestedFolders.get(0);
+
+            while (wd.peek() != null && wd.peek().isInSameFolder(currFolder)) {
+                nestedFolders.add(wd.poll());
+            }
+
+            String hash = writeTreeFile(convertContentsToString(nestedFolders));
+            wd.add(new WorkingDirectoryInfo("tree", hash, currFolder.getPaths()));
+            convertNestedDirs(wd);
+        }
+
+    } 
+
+    // converts an arraylist of working directory infos to a string
+    public static String convertContentsToString(ArrayList<WorkingDirectoryInfo> treeFiles) {
+        StringBuilder sb = new StringBuilder();
+        for (WorkingDirectoryInfo file : treeFiles) {
+            sb.append(file.getType() + " ");
+            sb.append(file.getHash() + " ");
+            sb.append(file.getFileName() + "\n");
+        }
+        return sb.toString().trim();
+    }
+
+    // stages all files inside a folder (i did this before i realized how to do the assignment)
+    public static String stageWHOLEfolder(File dir) throws IOException {
         if (dir.exists() && dir.isDirectory() ) {
 
             File[] contents = dir.listFiles();
@@ -180,7 +231,7 @@ public class GitHash {
                 File f = contents[i];
                 if (f.isDirectory() && f.listFiles().length != 0) {
                     workingList[i][0] = "tree";
-                    workingList[i][1] = writeDirContents(f);
+                    workingList[i][1] = stageWHOLEfolder(f);
                     workingList[i][2] = f.getName();
                 } 
 
@@ -200,6 +251,7 @@ public class GitHash {
         }
     }
 
+    // same as other one but for 2d arrays
     public static String convertContentsToString(String[][] tree) {
         StringBuilder sb = new StringBuilder();
         for (String[] files : tree) {
@@ -209,10 +261,10 @@ public class GitHash {
                 sb.append(files[2] + "\n");
             }
         }
-        sb.trimToSize();
-        return sb.toString();
+        return sb.toString().trim();
     }
 
+    // writes a given string onto a file and names it a hash based on the contents
     public static String writeTreeFile(String contents) throws IOException {
         String hash = generateSHA1FromString(contents);
         File folder = new File("./git/objects/" + hash);
